@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flashcards Ordening 3M</title>
+  <style>
+    body { font-family: sans-serif; background: #f4f4f4; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+    .card { background: white; border-radius: 12px; padding: 20px; width: 300px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; cursor: pointer; transition: transform 0.3s; }
+    .card:hover { transform: scale(1.05); }
+    .buttons { display: flex; gap: 10px; justify-content: center; }
+    .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    .btn.correct { background: #4CAF50; color: white; }
+    .btn.incorrect { background: #f44336; color: white; }
+    .end-screen { display: none; flex-direction: column; align-items: center; gap: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Flashcards Ordening 3M</h1>
+  <div id="card" class="card"></div>
+  <div class="buttons">
+    <button class="btn correct" onclick="markCorrect()">✓</button>
+    <button class="btn incorrect" onclick="markIncorrect()">✗</button>
+  </div>
+  <div id="end" class="end-screen">
+    <h2>Je bent klaar!</h2>
+    <button class="btn correct" onclick="restart()">Opnieuw</button>
+    <button class="btn incorrect" onclick="window.close()">Sluiten</button>
+  </div>
+
+  <script>
+    const originalCards = [
+      { q: "Wanneer verschenen de eerste levensvormen op aarde?", a: "3500 miljoen jaar geleden verschenen bacteriën." },
+      { q: "Welke organismen kwamen na de bacteriën in de evolutie?", a: "Waterdieren (1000 mln), landleven (450 mln), dinosauriërs (240–65 mln), mensachtigen (3 mln)." },
+      { q: "Wat is het verschil tussen prokaryoten en eukaryoten?", a: "Prokaryoten: geen celkern (bacteriën), Eukaryoten: met celkern (schimmels, planten, dieren)." },
+      { q: "Wat zijn de vier rijken van organismen?", a: "Bacteriën, Schimmels, Planten, Dieren." },
+      { q: "Welke celkenmerken horen bij bacteriën?", a: "Eencellig, geen celkern, wel een celwand." },
+      { q: "Welke celkenmerken hebben schimmels?", a: "Wel celkern en celwand, geen bladgroenkorrels." },
+      { q: "Wat hebben planten dat dieren niet hebben?", a: "Celwand, celkern en bladgroenkorrels." },
+      { q: "Hoe planten bacteriën en schimmels zich voort?", a: "Door deling of sporen." },
+      { q: "Noem twee nuttige en twee schadelijke effecten van bacteriën en schimmels.", a: "Nuttig: voeding, medicijnen. Schadelijk: infecties, bederf." },
+      { q: "Wat is het verschil tussen zaadplanten en sporenplanten?", a: "Zaadplanten: zaden, Sporenplanten: sporen." },
+      { q: "Wat is kenmerkend aan wieren?", a: "Geen organen, voortplanting via deling of sporen." },
+      { q: "Wat zijn de drie vormen van symmetrie bij dieren?", a: "Geen, veelzijdig, tweezijdig." },
+      { q: "Welke typen skelet kunnen dieren hebben?", a: "Geen skelet, uitwendig skelet, inwendig skelet." },
+      { q: "Wat zijn kenmerken van geleedpotigen?", a: "Uitwendig skelet, gelede poten." },
+      { q: "Hoeveel poten hebben de verschillende geleedpotigen?", a: "Veelpotigen: per segment, Kreeftachtigen: 10–14, Spinachtigen: 8, Insecten: 6." },
+      { q: "Wat is een kenmerk van gewervelde dieren?", a: "Inwendig skelet en wervelkolom." },
+      { q: "Noem kenmerken van vissen.", a: "Kieuwen, koudbloedig." },
+      { q: "Wat is kenmerkend voor amfibieën?", a: "Slijmhuid, leven op water en land." },
+      { q: "Wat zijn kenmerken van reptielen?", a: "Droge schubben." },
+      { q: "Wat zijn kenmerken van vogels?", a: "Veren, kalkschaal bij eieren." },
+      { q: "Wat zijn kenmerken van zoogdieren?", a: "Haren, levendbarend." },
+      { q: "Wat is een determineertabel?", a: "Ja/nee-vragen om organismen te herkennen." },
+      { q: "Wat is het verschil tussen bedektzadigen en naaktzadigen?", a: "Bedekt: zaden in vrucht, Naakt: zaden tussen kegelschubben." },
+      { q: "Wat is bijzonder aan evolutie op eilanden?", a: "Unieke eigenschappen zoals kiwi, vogelbekdier, vingerdier." }
+    ];
+
+    let flashcards = [...originalCards];
+    let current = 0;
+    let showingAnswer = false;
+    const cardDiv = document.getElementById("card");
+    const endScreen = document.getElementById("end");
+
+    function showCard() {
+      if (flashcards.length === 0) {
+        cardDiv.style.display = "none";
+        document.querySelector(".buttons").style.display = "none";
+        endScreen.style.display = "flex";
+        return;
+      }
+      cardDiv.textContent = showingAnswer ? flashcards[current].a : flashcards[current].q;
+    }
+
+    cardDiv.addEventListener("click", () => {
+      showingAnswer = !showingAnswer;
+      showCard();
+    });
+
+    function markCorrect() {
+      flashcards.splice(current, 1);
+      if (current >= flashcards.length) current = 0;
+      showingAnswer = false;
+      showCard();
+    }
+
+    function markIncorrect() {
+      flashcards.push(flashcards[current]);
+      flashcards.splice(current, 1);
+      if (current >= flashcards.length) current = 0;
+      showingAnswer = false;
+      showCard();
+    }
+
+    function restart() {
+      flashcards = [...originalCards];
+      current = 0;
+      showingAnswer = false;
+      cardDiv.style.display = "block";
+      document.querySelector(".buttons").style.display = "flex";
+      endScreen.style.display = "none";
+      showCard();
+    }
+
+    showCard();
+  </script>
+</body>
+</html>
