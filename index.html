@@ -5,19 +5,86 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Flashcards Ordening 3M</title>
   <style>
-    body { font-family: sans-serif; background: #f4f4f4; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-    .card { background: white; border-radius: 12px; padding: 20px; width: 300px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; cursor: pointer; transition: transform 0.3s; }
-    .card:hover { transform: scale(1.05); }
-    .buttons { display: flex; gap: 10px; justify-content: center; }
-    .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-    .btn.correct { background: #4CAF50; color: white; }
-    .btn.incorrect { background: #f44336; color: white; }
-    .end-screen { display: none; flex-direction: column; align-items: center; gap: 10px; }
+    body {
+      font-family: sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .card {
+      perspective: 1000px;
+      width: 300px;
+      height: 200px;
+      margin-bottom: 20px;
+    }
+    .card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    .card.flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 12px;
+      background: white;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card-back {
+      transform: rotateY(180deg);
+    }
+    .buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .btn.correct {
+      background: #4CAF50;
+      color: white;
+    }
+    .btn.incorrect {
+      background: #f44336;
+      color: white;
+    }
+    .end-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
   </style>
 </head>
 <body>
   <h1>Flashcards Ordening 3M</h1>
-  <div id="card" class="card"></div>
+  <div id="card" class="card" onclick="flipCard()">
+    <div class="card-inner">
+      <div class="card-front" id="card-front"></div>
+      <div class="card-back" id="card-back"></div>
+    </div>
+  </div>
   <div class="buttons">
     <button class="btn correct" onclick="markCorrect()">✓</button>
     <button class="btn incorrect" onclick="markIncorrect()">✗</button>
@@ -59,23 +126,26 @@
     let flashcards = [...originalCards];
     let current = 0;
     let showingAnswer = false;
-    const cardDiv = document.getElementById("card");
+    const card = document.getElementById("card");
+    const cardFront = document.getElementById("card-front");
+    const cardBack = document.getElementById("card-back");
     const endScreen = document.getElementById("end");
 
     function showCard() {
       if (flashcards.length === 0) {
-        cardDiv.style.display = "none";
+        card.style.display = "none";
         document.querySelector(".buttons").style.display = "none";
         endScreen.style.display = "flex";
         return;
       }
-      cardDiv.textContent = showingAnswer ? flashcards[current].a : flashcards[current].q;
+      cardFront.textContent = flashcards[current].q;
+      cardBack.textContent = flashcards[current].a;
+      card.classList.remove("flipped");
     }
 
-    cardDiv.addEventListener("click", () => {
-      showingAnswer = !showingAnswer;
-      showCard();
-    });
+    function flipCard() {
+      card.classList.toggle("flipped");
+    }
 
     function markCorrect() {
       flashcards.splice(current, 1);
@@ -96,7 +166,7 @@
       flashcards = [...originalCards];
       current = 0;
       showingAnswer = false;
-      cardDiv.style.display = "block";
+      card.style.display = "block";
       document.querySelector(".buttons").style.display = "flex";
       endScreen.style.display = "none";
       showCard();
